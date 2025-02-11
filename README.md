@@ -13,7 +13,7 @@ The state-space model represents a dynamical system characterized by the equatio
 
 **State transition equation:**
 
-$$  x_{t+1} = A x_t + B u_t + ε $$
+$$  x_{k} = A x_{k-1} + B + ε $$
 
 where:
 - `A` (`jnp.ndarray`, shape `(dim_state, dim_state)`) represents the transition matrix.
@@ -22,7 +22,7 @@ where:
 
 **Observation equation:**
 
-\[ y_t = C x_t + D + ν \]
+$$ y_k = C x_k + D + ν $$
 
 where:
 - `C` (`jnp.ndarray`, shape `(dim_obs, dim_state)`) is the observation matrix.
