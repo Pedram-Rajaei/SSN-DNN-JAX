@@ -364,7 +364,7 @@ resampled_particles = cnn_resample_particles(
 ```
 
 ### 5. Expectation Maximization (M-Step)
-
+In the Expectation-Maximization (EM) algorithm, the Maximization Step (M-Step) updates the parameters of the model to maximize the expected log-likelihood obtained in the Expectation Step (E-Step). Given the posterior probabilities of the latent variables (computed in the E-Step), the M-Step optimizes the model parameters by solving a maximization problem. This typically involves computing the maximum likelihood estimates (MLE) or maximum a posteriori (MAP) estimates of parameters such as means, variances, and mixture weights in Gaussian Mixture Models (GMMs). The updated parameters are then used in the next iteration of the E-Step, and the process continues until convergence.
 #### Implementation
 The `m_step` function updates the process noise variance (Q) based on particle filtering results.
 ```python
@@ -504,7 +504,7 @@ state, log_likelihoods, particles_history, cnn_variables, cnn_opt_state = run_em
     cnn_apply_fn, optimizer, cnn_labels)
 ```
 ### 7. Neural Network Training Step
-
+In the Expectation-Maximization (EM) algorithm applied to training a Neural Network (NN), the E-Step generates particles (samples or weighted latent representations) that approximate the posterior distribution over latent variables. In the M-Step, these particles are used to update the neural network's parameters by optimizing the expected likelihood. Specifically, the network's weights and biases are adjusted using gradient-based optimization (e.g., Stochastic Gradient Descent) to maximize the expected log-likelihood given the sampled particles. This iterative process ensures that the neural network learns a better representation of the underlying data distribution at each iteration, improving model performance and convergence stability.
 #### Implementation
 The `nn_step` function updates CNN parameters based on new particles.
 ```python
