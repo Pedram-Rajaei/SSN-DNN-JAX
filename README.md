@@ -86,6 +86,7 @@ fft_transformed = apply_fft_to_dparticle(dparticle)
 ### 3. Sequential Monte Carlo (SMC) Updates
 
 SMC employs particle filtering for estimating latent states. Systematic resampling is implemented using Blackjax.
+If y > α, a Kalman filter-based update is applied, leveraging observed data for state estimation. However, if y < α, this indicates the presence of missing data points in the dataset. In such cases, continuing with the Kalman filter update is not appropriate. Instead, a standard Gaussian proposal is used to propagate the particles, ensuring robustness in the presence of incomplete observations. Keep in mind that the value of α is decided by the user. So we have:
 - If `y > α`, a Kalman filter-based update is applied.
 - Otherwise, a standard Gaussian proposal is used.
 
