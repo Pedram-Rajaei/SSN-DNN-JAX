@@ -13,21 +13,21 @@ The state-space model represents a dynamical system characterized by the equatio
 
 **State transition equation:**
 
-\[ x_{t+1} = A x_t + B u_t + \epsilon \]
+\[ x_{t+1} = A x_t + B u_t + ε\]
 
 where:
 - `A` (`jnp.ndarray`, shape `(dim_state, dim_state)`) represents the transition matrix.
 - `B` (`jnp.ndarray`, shape `(dim_state,)`) is an external control term.
-- `\epsilon` is process noise sampled from a Gaussian distribution with variance `Q` (`jnp.ndarray`, shape `(1,)`).
+- `ε` is process noise sampled from a Gaussian distribution with variance `Q` (`jnp.ndarray`, shape `(1,)`).
 
 **Observation equation:**
 
-\[ y_t = C x_t + D + \nu \]
+\[ y_t = C x_t + D + ν \]
 
 where:
 - `C` (`jnp.ndarray`, shape `(dim_obs, dim_state)`) is the observation matrix.
 - `D` (`jnp.ndarray`, shape `(dim_obs,)`) is an offset.
-- `\nu` is Gaussian observation noise with variance `R` (`jnp.ndarray`, shape `(1,)`).
+- `ν` is Gaussian observation noise with variance `R` (`jnp.ndarray`, shape `(1,)`).
 
 #### Implementation
 A `State` data class is used to efficiently represent system parameters, enabling flexible simulation of different dynamical behaviors.
