@@ -356,7 +356,7 @@ def cnn_resample_particles(all_particles, cnn_variables, cnn_apply_fn, trial_lab
         jr.split(key)[1], shape=all_particles[:, indices, :].shape
     ) * 1e-5
 ```
-# Example Usage
+**Example Usage:**
 ```python
 resampled_particles = cnn_resample_particles(
     particles_trials, cnn_variables, cnn_apply_fn, 1, key
@@ -406,7 +406,7 @@ def m_step(state: State, particles_trials: jnp.ndarray, damping=0.1, eps=1e-6) -
                  Q=jnp.array([updated_Q]), R=state.R, R0=state.R0, 
                  dim_state=state.dim_state, initial_mean=state.initial_mean)
 ```
-# Example Usage**
+**Example Usage:**
 ```python
 updated_state = m_step(state, particles_trials)
 ```
