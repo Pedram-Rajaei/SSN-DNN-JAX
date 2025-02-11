@@ -200,6 +200,37 @@ def particle_filter_single_trial2(key, state: State, observations: jnp.ndarray, 
 particles_history = particle_filter_single_trial2(key, state, jnp.array([1.0, 2.0, 3.0]), num_particles=100)
 ```
 
+The `particle_filter_multi_trial2` function runs a particle filter across multiple trials.
+```python
+def particle_filter_multi_trial2(key, state: State, observations_all_trials: jnp.ndarray, num_particles: int) -> jnp.ndarray:
+    """
+    Runs a particle filter across multiple trials.
+
+    Args:
+        key: PRNG key for randomness.
+        state (State): The system state parameters.
+        observations_all_trials (jnp.ndarray): Observations for multiple trials (shape: num_trials, T, dim_obs).
+        num_particles (int): The number of particles used in the filter.
+
+    Returns:
+        jnp.ndarray: Filtered particle states (shape: num_trials, T, num_particles, dim_state).
+    """
+    def filter_trial(key, obs):
+        return particle_filter_single_trial2(key, state, obs, num_particles)
+
+    # Generate a unique key for each trial
+    keys = jr.split(key, observations_all_trials.shape[0])
+
+    # Run the particle filter on each trial using jax.vmap for parallelization
+    particles_trials = jax.vmap(filter_trial)(keys, observations_all_trials)
+
+    return particles_trials  # Shape: (num_trials, T, num_particles, dim_state)
+```
+
+**Example Usage**
+```python
+particles_trials = particle_filter_multi_trial2(key, state, jnp.ones((5, 100, 1)), num_particles=200)
+```
 ### 4. CNN-based Particle Resampling
 
 A 1D CNN is implemented in JAX using the Flax framework. The CNN architecture includes:
@@ -293,8 +324,93 @@ def cnn_apply_fn(variables, inputs, train, **kwargs):
 ```python
 logits = cnn_apply_fn(cnn_variables, jnp.ones((10, 100, 1)), train=True)
 ```
+The `cnn_resample_particles` function refines particles using CNN-predicted weights.
 
-### 5. Expectation-Maximization (EM) Algorithm
+```python
+def cnn_resample_particles(all_particles, cnn_variables, cnn_apply_fn, trial_label, key):
+    """
+    Refines particles using CNN-predicted weights.
+
+    Args:
+        all_particles (jnp.ndarray): Particles to be resampled (shape: T, num_particles, dim_state).
+        cnn_variables: CNN model parameters.
+        cnn_apply_fn: Function to apply the CNN model.
+        trial_label (int): The label of the trial used for selecting CNN output.
+        key: PRNG key for randomness.
+
+    Returns:
+        jnp.ndarray: Resampled particles.
+    """
+    # Compute CNN-predicted weights using softmax
+    weights_nn = jax.vmap(lambda i: jax.nn.softmax(
+        cnn_apply_fn(cnn_variables, apply_fft_to_dparticle(all_particles[:, i, :])[:, None][None, :, :], train=False)
+    )[0, trial_label])(jnp.arange(all_particles.shape[1]))
+
+    # Perform systematic resampling based on normalized weights
+    indices = systematic(
+        jr.split(key)[0], weights_nn / (jnp.sum(weights_nn) + 1e-6), all_particles.shape[1]
+    )
+
+    # Add small Gaussian noise to prevent particle degeneracy
+    return all_particles[:, indices, :] + jr.normal(
+        jr.split(key)[1], shape=all_particles[:, indices, :].shape
+    ) * 1e-5
+```
+# Example Usage
+```python
+resampled_particles = cnn_resample_particles(
+    particles_trials, cnn_variables, cnn_apply_fn, 1, key
+)
+```
+
+### 5. Expectation Maximization (M-Step)
+
+#### Implementation
+The `m_step` function updates the process noise variance (Q) based on particle filtering results.
+```python
+def m_step(state: State, particles_trials: jnp.ndarray, damping=0.1, eps=1e-6) -> State:
+    """
+    Updates the process noise variance (Q) based on particle filtering results.
+
+    Args:
+        state (State): The current system state.
+        particles_trials (jnp.ndarray): The particles generated from multiple trials (shape: num_trials, T, num_particles, dim_state).
+        damping (float): Damping factor to control the update rate (default: 0.1).
+        eps (float): Small constant to prevent division by zero (default: 1e-6).
+
+    Returns:
+        State: Updated state with the new process noise variance (Q).
+    """
+    num_trials, T, num_particles, dim_state = particles_trials.shape
+
+    # Extract consecutive time-step pairs
+    x_t = particles_trials[:, :-1, :, :]
+    x_tp1 = particles_trials[:, 1:, :, :]
+
+    # Compute predicted next state based on transition matrix A and control B
+    predicted = jnp.einsum('ij,btpj->btpi', state.A, x_t) + state.B
+
+    # Compute squared prediction error
+    error = x_tp1 - predicted
+    squared_error = jnp.sum(error**2, axis=-1)
+
+    # Compute new process noise variance (Q)
+    new_Q = jnp.mean(squared_error)
+    new_Q = jnp.maximum(new_Q, 1e-3)  # Ensure a minimum variance to avoid numerical issues
+
+    # Apply damping to update Q
+    updated_Q = damping * new_Q + (1 - damping) * state.Q[0]
+
+    # Return updated state
+    return State(A=state.A, B=state.B, C=state.C, D=state.D, 
+                 Q=jnp.array([updated_Q]), R=state.R, R0=state.R0, 
+                 dim_state=state.dim_state, initial_mean=state.initial_mean)
+```
+# Example Usage**
+```python
+updated_state = m_step(state, particles_trials)
+```
+### 6. Expectation-Maximization (EM) Algorithm
 
 The EM algorithm iteratively refines the state-space model parameters:
 - **E-Step:** Running the particle filter, updating particle weights based on CNN classification.
@@ -387,8 +503,60 @@ state, log_likelihoods, particles_history, cnn_variables, cnn_opt_state = run_em
     key, state, jnp.ones((5, 100, 1)), 100, 10, cnn_variables, cnn_opt_state, 
     cnn_apply_fn, optimizer, cnn_labels)
 ```
+### 7. Neural Network Training Step
 
-### 6. Cross-Validation and Evaluation
+#### Implementation
+The `nn_step` function updates CNN parameters based on new particles.
+```python
+def nn_step(all_particles, labels_train, cnn_variables, cnn_opt_state, cnn_apply_fn, optimizer, batch_size=32, epochs=5):
+    """
+    Updates CNN parameters based on new particles.
+
+    Args:
+        all_particles (jnp.ndarray): Particle trajectories across trials (shape: num_trials, T, num_particles, dim_state).
+        labels_train (jnp.ndarray): Training labels corresponding to trials.
+        cnn_variables: CNN model parameters.
+        cnn_opt_state: CNN optimizer state.
+        cnn_apply_fn: Function to apply the CNN model.
+        optimizer: Optimizer for training.
+        batch_size (int): Batch size for training (default: 32).
+        epochs (int): Number of training epochs (default: 5).
+
+    Returns:
+        tuple: Updated CNN variables and optimizer state.
+    """
+    num_trials, T, num_particles, dim_state = all_particles.shape
+
+    # Reshape particle data for CNN input
+    x_temp = jnp.transpose(all_particles, (0, 2, 1, 3)).reshape(-1, T, dim_state)
+
+    # Repeat labels to match particle count
+    labels_repeated = jnp.repeat(labels_train, num_particles, axis=0)
+
+    # Shuffle dataset
+    dataset_size = x_temp.shape[0]
+    permutation = jax.random.permutation(jr.PRNGKey(0), dataset_size)
+    x_temp, labels_repeated = x_temp[permutation], labels_repeated[permutation]
+
+    # Training loop
+    for _ in range(epochs):
+        for i in range(dataset_size // batch_size):
+            cnn_variables, cnn_opt_state, _ = cnn_train_step(
+                cnn_variables, cnn_opt_state,
+                x_temp[i * batch_size:(i + 1) * batch_size],
+                labels_repeated[i * batch_size:(i + 1) * batch_size],
+                cnn_apply_fn, optimizer, jr.PRNGKey(1234)
+            )
+
+    return cnn_variables, cnn_opt_state
+```
+**Example Usage**
+```python
+cnn_variables, cnn_opt_state = nn_step(
+    particles_trials, cnn_labels, cnn_variables, cnn_opt_state, cnn_apply_fn, optimizer
+)
+```
+### 8. Cross-Validation and Evaluation
 
 To ensure robustness, the model is evaluated using:
 - **Dataset splitting:** Training and testing subsets (maintaining class balance).
