@@ -625,11 +625,11 @@ fpr, tpr, roc_auc = evaluate_model_roc_curve(cnn_variables, cnn_apply_fn,
 This implementation integrates SMC-based state estimation with deep learning (CNNs) in JAX, enhancing particle filtering accuracy. The FFT transformation further improves CNN performance by leveraging frequency-domain insights. As observed in Fig. 1, the particles successfully capture the underlying pattern of the dataset. However, Fig. 2 reveals challenges in accurately classifying the labels, indicating that further refinement is needed to improve the classification performance.
 
 <figure>
-  <img src="images/SSM.png" alt="Description" width="400">
+  <img src="Images/SSM.png" alt="Description" width="400">
   <figcaption>Figure 1: The particles successfully capture the underlying pattern hidden within the noisy observations, effectively filtering out noise to reveal the true structure of the dataset.</figcaption>
 </figure>
 
 <figure>
-  <img src="images/image_name.png" alt="Description" width="400">
+  <img src="Images/image_name.png" alt="Description" width="400">
   <figcaption>Figure 2: Caption describing the image.</figcaption>
 </figure>
