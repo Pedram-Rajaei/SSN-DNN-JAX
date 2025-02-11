@@ -211,7 +211,61 @@ A 1D CNN is implemented in JAX using the Flax framework. The CNN architecture in
 #### Implementation
 The `CNN1D` model defines a 1D CNN for time-series classification.
 ```python
+class CNN1D(nn.Module):
+    """
+    A 1D Convolutional Neural Network (CNN) for time-series classification.
 
+    Args:
+        input_channels (int): Number of input channels.
+        input_time_steps (int): Number of time steps in the input sequence.
+        dropout_rate (float): Dropout rate for regularization (default: 0.3).
+
+    Methods:
+        __call__(x, train=True): Forward pass through the CNN.
+
+    Returns:
+        jnp.ndarray: Output logits with shape (batch, 2).
+    """
+    input_channels: int
+    input_time_steps: int
+    dropout_rate: float = 0.3
+
+    @nn.compact
+    def __call__(self, x, train: bool = True):
+        """
+        Forward pass of the 1D CNN.
+
+        Args:
+            x (jnp.ndarray): Input tensor of shape (batch, time_steps, channels).
+            train (bool): If True, applies dropout and batch normalization in training mode.
+
+        Returns:
+            jnp.ndarray: Output logits of shape (batch, 2).
+        """
+        # First convolutional block
+        x = nn.Conv(features=8, kernel_size=(10,), padding='SAME')(x)
+        x = nn.BatchNorm(use_running_average=not train)(x)
+        x = nn.leaky_relu(x)
+        x = nn.avg_pool(x, window_shape=(2,), strides=(2,))
+        x = nn.Dropout(rate=self.dropout_rate, deterministic=not train)(x)
+
+        # Second convolutional block
+        x = nn.Conv(features=16, kernel_size=(20,), padding='SAME')(x)
+        x = nn.BatchNorm(use_running_average=not train)(x)
+        x = nn.leaky_relu(x)
+        x = nn.avg_pool(x, window_shape=(2,), strides=(2,))
+        x = nn.Dropout(rate=self.dropout_rate, deterministic=not train)(x)
+
+        # Fully connected layers
+        x = x.reshape((x.shape[0], -1))  # Flatten
+        x = nn.Dense(features=64)(x)
+        x = nn.leaky_relu(x)
+        x = nn.Dropout(rate=self.dropout_rate, deterministic=not train)(x)
+
+        # Output layer
+        x = nn.Dense(features=2)(x)
+
+        return x
 ```
 **Example Usage:**
 ```python
@@ -220,7 +274,20 @@ cnn_model = CNN1D(input_channels=1, input_time_steps=100, dropout_rate=0.1)
 
 The `cnn_apply_fn` function applies the CNN model.
 ```python
+def cnn_apply_fn(variables, inputs, train, **kwargs):
+    """
+    Applies the CNN model to the given inputs.
 
+    Args:
+        variables: Model parameters and state.
+        inputs (jnp.ndarray): Input tensor of shape (batch, time_steps, channels).
+        train (bool): Whether the model is in training mode.
+        **kwargs: Additional arguments for the model.
+
+    Returns:
+        jnp.ndarray: Output logits of shape (batch, 2).
+    """
+    return cnn_model.apply(variables, inputs, train=train, **kwargs)
 ```
 **Example Usage:**
 ```python
@@ -236,7 +303,83 @@ The EM algorithm iteratively refines the state-space model parameters:
 #### Implementation
 The `run_em` function runs the EM algorithm with CNN updates.
 ```python
+def run_em(key, state: State, observations_all_trials: jnp.ndarray, num_particles: int,
+           num_iters: int, cnn_variables, cnn_opt_state, cnn_apply_fn, optimizer, cnn_labels):
+    """
+    Runs the Expectation-Maximization (EM) algorithm for state-space model estimation.
 
+    Steps:
+      - E–Step: Particle filtering across trials.
+      - Apply FFT on particles.
+      - CNN-based resampling per trial using FFT-transformed particles.
+      - M–Step: Update process noise variance (Q).
+      - Update CNN parameters using the new (FFT-transformed) particles.
+
+    Args:
+        key: PRNG key for randomness.
+        state (State): The current system state.
+        observations_all_trials (jnp.ndarray): Observations for multiple trials.
+        num_particles (int): Number of particles for SMC.
+        num_iters (int): Number of EM iterations.
+        cnn_variables: CNN model parameters.
+        cnn_opt_state: CNN optimizer state.
+        cnn_apply_fn: Function to apply CNN model.
+        optimizer: CNN optimizer.
+        cnn_labels: Labels for CNN classification.
+
+    Returns:
+        tuple: Updated state, log-likelihoods, final particle history, CNN parameters, and optimizer state.
+    """
+    log_likelihoods = []
+    final_particles_history = None
+
+    for i in range(num_iters):
+        key, subkey = jr.split(key)
+
+        # Run particle filtering across trials
+        particles_trials = particle_filter_multi_trial2(subkey, state, observations_all_trials, num_particles)
+        # particles_trials shape: (num_trials, T, num_particles, dim_state)
+
+        # CNN-based resampling using FFT-transformed particles
+        num_trials = particles_trials.shape[0]
+        keys_for_cnn = jr.split(key, num_trials)
+
+        def resample_trial(particles, label, key_):
+            return cnn_resample_particles(particles, cnn_variables, cnn_apply_fn, label, key_)
+
+        particles_resampled = jax.vmap(resample_trial)(particles_trials, cnn_labels, keys_for_cnn)
+        final_particles_history = particles_resampled
+
+        # M-Step: Update process noise variance (Q)
+        state = m_step(state, particles_resampled, damping=0.1)
+
+        # Compute prediction error
+        x_t = particles_resampled[:, :-1, :, :]
+        x_tp1 = particles_resampled[:, 1:, :, :]
+        predicted = jnp.einsum('ij,btpj->btpi', state.A, x_t) + state.B
+        error = x_tp1 - predicted
+        squared_error = jnp.sum(error**2, axis=-1)
+
+        # Compute likelihood
+        score = 0.5 * jnp.mean(squared_error)
+        likelihood = jnp.exp(-score)
+        log_likelihoods.append(likelihood)
+
+        print(f"Iteration {i+1}: Score = {score}, Likelihood = {likelihood}, Updated Q = {state.Q}")
+
+        # Apply FFT on each particle trajectory along the time axis
+        fft_particles = jax.vmap(
+            lambda trial: jax.vmap(lambda particle: apply_fft_to_dparticle(particle))(trial)
+        )(particles_trials)
+        # fft_particles shape: (num_trials, T, num_particles, dim_state)
+
+        # Update CNN parameters using FFT-transformed particles
+        cnn_variables, cnn_opt_state = nn_step(
+            fft_particles, cnn_labels, cnn_variables, cnn_opt_state, cnn_apply_fn, optimizer,
+            batch_size=32, epochs=5
+        )
+
+    return state, jnp.array(log_likelihoods), final_particles_history, cnn_variables, cnn_opt_state
 ```
 **Example Usage:**
 ```python
@@ -255,7 +398,52 @@ To ensure robustness, the model is evaluated using:
 #### Implementation
 The `evaluate_model_roc_curve` function evaluates CNN performance using ROC curves.
 ```python
+def evaluate_model_roc_curve(cnn_variables, cnn_apply_fn, test_data, test_labels):
+    """
+    Evaluates the CNN model on the test set by applying the same FFT transformation
+    (with log and normalization) that was used during training. The CNN then produces logits,
+    from which the predicted probabilities and ROC curve are computed.
 
+    Args:
+        cnn_variables: CNN model parameters.
+        cnn_apply_fn: Function to apply the CNN model.
+        test_data (jnp.ndarray): Test dataset of shape (n_test, T, 1).
+        test_labels (np.ndarray): Ground-truth binary labels (0 or 1) of shape (n_test,).
+
+    Returns:
+        tuple: False positive rates (fpr), true positive rates (tpr), and AUC score.
+    """
+    def fft_transform(sample):
+        """
+        Applies FFT transformation (log and normalization) to a single test sample.
+
+        Args:
+            sample (jnp.ndarray): Input sample of shape (T, 1).
+
+        Returns:
+            jnp.ndarray: Transformed sample of shape (T, 1).
+        """
+        sample = sample.squeeze(-1)  # Remove singleton channel dimension -> shape (T,)
+        fft_sample = apply_fft_to_dparticle(sample)  # Apply FFT transformation -> shape (T,)
+        return fft_sample[:, None]  # Add back the channel dimension -> shape (T, 1)
+
+    # Apply FFT transformation to all test samples.
+    fft_test_data = jax.vmap(fft_transform)(test_data)
+
+    # Compute CNN logits.
+    logits = cnn_apply_fn(cnn_variables, fft_test_data, train=False, mutable=False)
+
+    # Compute class probabilities using softmax.
+    probs = jax.nn.softmax(logits, axis=-1)
+
+    # Extract positive-class probabilities.
+    pos_probs = np.array(probs[:, 1])
+
+    # Compute ROC curve and AUC score.
+    fpr, tpr, thresholds = roc_curve(test_labels, pos_probs)
+    roc_auc = auc(fpr, tpr)
+
+    return fpr, tpr, roc_auc
 ```
 **Example Usage:**
 ```python
