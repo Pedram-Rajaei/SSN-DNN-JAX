@@ -630,6 +630,6 @@ This implementation integrates SMC-based state estimation with deep learning (CN
 </figure>
 
 <figure>
-  <img src="Images/image_name.png" alt="Description" width="400">
-  <figcaption>Figure 2: Caption describing the image.</figcaption>
+  <img src="Images/CNN.png" alt="Description" width="400">
+  <figcaption>Figure 2: The CNN trained on particle-filtered data accurately predicts class labels, demonstrating strong classification performance with minimal misclassification </figcaption>
 </figure>
