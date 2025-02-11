@@ -31,7 +31,19 @@ where:
 
 #### Implementation
 A `State` data class is used to efficiently represent system parameters, enabling flexible simulation of different dynamical behaviors.
-
+```python
+@dataclass
+class State:
+    A: jnp.ndarray           # (dim_state, dim_state)
+    B: jnp.ndarray           # (dim_state,)
+    C: jnp.ndarray           # (dim_obs, dim_state)
+    D: jnp.ndarray           # (dim_obs,)
+    Q: jnp.ndarray           # (1,)
+    R: jnp.ndarray           # (1,)
+    R0: jnp.ndarray          # (1,)
+    dim_state: int           # e.g., 1
+    initial_mean: jnp.ndarray  # (dim_state,)
+```
 **Example Usage:**
 ```python
 state = State(A=jnp.eye(2), B=jnp.zeros(2), C=jnp.array([[1, 0]]), D=jnp.zeros(1), 
