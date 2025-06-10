@@ -89,23 +89,9 @@ estimation</li>
 <article id="example-1">
 <h3>II. Brief Death Implicit Association Task (BDIAT)</h3>
 <p>
-  Here, we demonstrate an application of SSM-DNN in BDIAT task. For this 
-dataset, the observation is RT across 360 trials of task, as describe here. 
-There are 23 participants in total, where we know whether the participant 
-is from CTL (healthy) or Major Depressive Disorder (MDD) group. We 
-consider each participant data as a trial, thus, we have 23 trials in our task 
-and the number of sampels per trial is 360. For each trial, the label can 
-present either MDD or CTRL group.
+  In this study, we demonstrate the application of the SSM-DNN framework to behavioral data collected from the D-IAT task. Each observation consists of reaction time (RT) data recorded across 360 sequential trials. The dataset includes 23 participants, each stratified into either the High Suicidal Ideation (High SI) or Low Suicidal Ideation (Low SI) group based on ecological momentary assessment scores. For modeling purposes, we treat each participant’s data as an individual trial, resulting in 23 trials in total, with each trial comprising 360 time-ordered RT samples. Each trial is labeled according to the participant’s SI group—High SI or Low SI.
 </p>
-<p>The observation dimension is 1, and we use a random walk model as the 
-state process. Here, SSM works as adaptive smoother. The DNN is a 1-
-dimensional CNN with 2 layer of convoltuin and max-pooling. We use a 
-cross-validation scheme to assess prediction accuracy along with sepecificty
-and sensvicity of our model. We compared our model with DNN alone, and 
-other modeling frameowkr such as XXX and YYY, and found our model can 
-reach higher prediction accuracy with a more balanced specificity and 
-senisivity.  Different steps of the framework implementation using SSM-
-DNN can be found here:</p>
+<p>The observation dimension is one, and we model the latent state process using a random walk. In this framework, the state-space model (SSM) functions as an adaptive smoother over the observed reaction times. The deep neural network (DNN) component is implemented as a one-dimensional convolutional neural network (1D-CNN) consisting of two convolutional layers followed by max-pooling. To evaluate model performance, we use a cross-validation scheme that assesses overall prediction accuracy, as well as specificity and sensitivity. We compare the SSM-DNN model against a baseline DNN (without the SSM component) and alternative state of art modeling frameworks such as pre trained ResNet. Our results show that SSM-DNN achieves higher predictive accuracy while maintaining a better balance between specificity and sensitivity. A detailed breakdown of the SSM-DNN implementation steps is provided here:</p>
 <ul>
     <li><a href="Neural_Network_for_Classification_Task.py">Neural Network for Classification Task</a>: Demonstrates how to implement and train a neural network for EEG data classification and visualize its performance.
     </li>
