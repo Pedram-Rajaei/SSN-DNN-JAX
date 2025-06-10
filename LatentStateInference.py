@@ -237,7 +237,7 @@ def particle_filter_single_trial(key: jax.random.PRNGKey,
         key, particles = carry
         key, subkey = jr.split(key)
         # Propose & weight
-        new_particles, weights = jax.vmap(lambda p, k: smc_update2(state, p, y_t, k))(
+        new_particles, weights = jax.vmap(lambda p, k: smc_update(state, p, y_t, k))(
             particles, jr.split(subkey, particles.shape[0])
         )
         # Normalize & resample
@@ -271,7 +271,7 @@ def particle_filter_multi_trial(key: jax.random.PRNGKey,
         Array of shape (num_trials, T, num_particles, dim_state).
     """
     def filter_one(trial_key, obs):
-        return particle_filter_single_trial2(trial_key, state, obs, num_particles)
+        return particle_filter_single_trial(trial_key, state, obs, num_particles)
 
     keys = jr.split(key, observations_all_trials.shape[0])
     return jax.vmap(filter_one)(keys, observations_all_trials)
@@ -386,7 +386,7 @@ def run_em(key: jax.random.PRNGKey,
     for i in range(num_iters):
         key, subkey = jr.split(key)
         # E-step: particle filtering
-        particles = particle_filter_multi_trial2(subkey, state, observations_all_trials, num_particles)
+        particles = particle_filter_multi_trial(subkey, state, observations_all_trials, num_particles)
         # CNN-based resampling
         trials = particles.shape[0]
         keys_cnn = jr.split(key, trials)
