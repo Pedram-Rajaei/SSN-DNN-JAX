@@ -1,4 +1,4 @@
-# JAX-based implementation of structured state-space models combined with deep neural networks for scalable and interpretable time-series modeling
+# JAX-based implementation of structured state-space models combined with deep neural networks for scalable and interpretable time-series modeling(SSM-DNN-JAX)
 ## Introduction
 
 A fast, differentiable implementation of State-Space Models combined with Deep Neural Networks (SSM-DNN) using [JAX](https://github.com/jax-ml/jax) for accelerated and scalable computation.
