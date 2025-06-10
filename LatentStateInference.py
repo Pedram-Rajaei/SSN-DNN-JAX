@@ -6,33 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
-def systematic(key: jax.random.PRNGKey,
-               weights: jnp.ndarray,
-               num_particles: int) -> jnp.ndarray:
-    """
-    Perform systematic resampling given a set of normalized weights.
-
-    Parameters
-    ----------
-    key : PRNGKey
-        Random key for generating the uniform offset.
-    weights : jnp.ndarray
-        Array of shape (num_particles,) containing non-negative weights that sum to 1.
-    num_particles : int
-        Number of particles to resample.
-
-    Returns
-    -------
-    indices : jnp.ndarray
-        Integer array of shape (num_particles,) giving the selected particle indices.
-    """
-    # Uniform positions in [0,1) spaced by 1/num_particles
-    offsets = (jnp.arange(num_particles) + jr.uniform(key, ())) / num_particles
-    cumsum = jnp.cumsum(weights)
-    indices = jnp.searchsorted(cumsum, offsets)
-    return indices
-
-
 @dataclass
 class State:
     """
@@ -69,6 +42,31 @@ class State:
     dim_state: int
     initial_mean: jnp.ndarray
 
+def systematic(key: jax.random.PRNGKey,
+               weights: jnp.ndarray,
+               num_particles: int) -> jnp.ndarray:
+    """
+    Perform systematic resampling given a set of normalized weights.
+
+    Parameters
+    ----------
+    key : PRNGKey
+        Random key for generating the uniform offset.
+    weights : jnp.ndarray
+        Array of shape (num_particles,) containing non-negative weights that sum to 1.
+    num_particles : int
+        Number of particles to resample.
+
+    Returns
+    -------
+    indices : jnp.ndarray
+        Integer array of shape (num_particles,) giving the selected particle indices.
+    """
+    # Uniform positions in [0,1) spaced by 1/num_particles
+    offsets = (jnp.arange(num_particles) + jr.uniform(key, ())) / num_particles
+    cumsum = jnp.cumsum(weights)
+    indices = jnp.searchsorted(cumsum, offsets)
+    return indices
 
 def proposal_fn(state: State,
                 particle: jnp.ndarray,
