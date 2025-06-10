@@ -52,7 +52,7 @@ def evaluate_model_test_set(cnn_variables: dict,
         Confusion matrix of shape (2, 2), comparing true vs. predicted labels.
     """
     # 1) Particle filter on all test trials
-    particles_trials = particle_filter_multi_trial2(
+    particles_trials = particle_filter_multi_trial(
         eval_key, state, test_data, num_particles
     )  # shape: (n_test, T, num_particles, dim_state)
 
