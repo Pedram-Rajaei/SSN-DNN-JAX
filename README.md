@@ -56,38 +56,10 @@ pip install -r requirements.txt
 </article>
 
 ---
-<h2>Code Examples(Simulation and Real Data Applications)</h2>
+<h2>Code Example(Real Data Applications)</h2>
 
-<article id="example-2">
-<h3>I. Simulated data Classification</h3>
-<p>
-  In this example, we create simulation data replicating SSM-DNN. The model
-assumption is as follows:
-</p>
-<ul>
-  <li><strong>State Dimension:</strong> 2</li>
-  <li><strong>Observation Dimension:</strong> 6</li>
-  <li><strong>Number of trials::</strong> 400</li>
-  <li><strong>Number of samples per trial:</strong> 25</li>
-  <li><strong>Class labels:</strong> 2, Class A and class B</li>
-</ul>
-<p>The state equation is a multivariate normal followed by X<sub>k+1</sub> = A ⋅ X<sub>k</sub> + B + e (we assume A to be an identity matrix and B is vector Zero, and 
-epsilon is crrleated noise)</p>
-<p>The observation model is defined by Y<sub>k</sub> = C ⋅ X<sub>k</sub> + D</p>
-<p>The label for each trial is determined based on the sum of its samples. If the sum of the first half of the samples in a trial is less than the sum of the second half, the label is 0; otherwise, the label is 1.</p>
-<p>For DNN, we use a CNN with 2 inputs and 2 convolution layer. The code of this application can be found here:
-    <ul>
-      <li><a href="https://colab.research.google.com/drive/18Wcm5t-hYAOvKSRQU8Bqwe9gDDsNFbAM?usp=sharing" target="_blank">Data Generation Code</a></li>
-      <li><a href="https://colab.research.google.com/drive/1qOBHu-s5S9zgThrnBL-WxDIcSorDwW-j?usp=sharing" target="_blank">Model Training Code:</a> We use MCMC method for the posterior 
-estimation of the state (4000 particles) and EM algorithm for training</li>
-      <li><a href="https://colab.research.google.com/drive/1wVEpB33TGXw-um628gvJ1YZpyDQYcgFS?usp=sharing="_blank">Decoding (Label Prediction) Code:</a> We predict DNN probability of 
-Class A and Class B using 4000 partcile samples drawn from the satte 
-estimation</li>
-    </ul>
-</p>
-    
 <article id="example-1">
-<h3>II. Brief Death Implicit Association Task (BDIAT)</h3>
+<h3>Brief Death Implicit Association Task (BDIAT)</h3>
 <p>
   In this study, we demonstrate the application of the SSM-DNN framework to behavioral data collected from the D-IAT task. Each observation consists of reaction time (RT) data recorded across 360 sequential trials. The dataset includes 46 participants, each stratified into either the High Suicidal Ideation (High SI) or Low Suicidal Ideation (Low SI) group based on ecological momentary assessment scores. For modeling purposes, we treat each participant’s data as an individual trial, resulting in 23 trials in total, with each trial comprising 360 time-ordered RT samples. Each trial is labeled according to the participant’s SI group—High SI or Low SI.
 </p>
