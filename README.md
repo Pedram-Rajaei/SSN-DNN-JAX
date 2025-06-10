@@ -36,12 +36,15 @@ The JAX-based version maintains the original SSM-DNN architecture but improves:
     <h3>Structure</h3>
     <pre><code>
 SSM-DNN-JAX/
-├── data/                 # Synthetic and real datasets
-├── models/               # Core model definitions (SSM, RNN, CNN)
-├── inference/            # EM algorithm, SMC filtering
-├── utils/                # Helper functions
-├── main.py               # Main training and evaluation script
-└── README.md             # This file
+├── Data_Description.md/                            # Real dataset used
+├── Neural_Network_for_Classification_Task.py/      # Core nueral network model definitions (CNN)
+├── Latent_State_Inference.py/                      # EM algorithm, SMC filtering
+├── utils.py/                                       # Helper functions
+├── Evaluate_Metric.py/                             # Evaluation functions
+├── main.py                                         # Main training and evaluation script
+└── License.md                                      # License
+└── Contribution.md                                 # Contriboution to this project
+└── README.md                                       # This file
     </code></pre>
   </section>
 
