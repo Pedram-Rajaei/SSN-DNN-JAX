@@ -1,4 +1,4 @@
-# SSN-DNN-JAX
+# JAX-based implementation of structured state-space models combined with deep neural networks for scalable and interpretable time-series modeling
 ## Introduction
 
 A fast, differentiable implementation of State-Space Models combined with Deep Neural Networks (SSM-DNN) using [JAX](https://github.com/jax-ml/jax) for accelerated and scalable computation.
@@ -32,12 +32,8 @@ The JAX-based version maintains the original SSM-DNN architecture but improves:
 ---
 
 <article>
-  <header>
-    <h2>A JAX-based implementation of structured state-space models combined with deep neural networks for scalable and interpretable time-series modeling.</h2>
-  </header>
-
   <section>
-    <h3>📁 Structure</h3>
+    <h3>Structure</h3>
     <pre><code>
 SSM-DNN-JAX/
 ├── data/                 # Synthetic and real datasets
@@ -50,23 +46,16 @@ SSM-DNN-JAX/
   </section>
 
   <section>
-    <h3>📦 Installation</h3>
+    <h3>Installation</h3>
     <pre><code class="language-bash">
 git clone https://github.com/Pedram-Rajaei/SSM-DNN-JAX.git
 cd SSM-DNN-JAX
 pip install -r requirements.txt
     </code></pre>
-
-    <h4>Dependencies</h4>
-    <ul>
-      <li><code>jax</code>, <code>jaxlib</code></li>
-      <li><code>flax</code>, <code>optax</code></li>
-      <li><code>matplotlib</code>, <code>numpy</code></li>
-    </ul>
   </section>
 
   <section>
-    <h3>🧪 Examples</h3>
+    <h3>Examples</h3>
     <pre><code class="language-bash">
 # Run EM + SMC inference on synthetic dataset
 python main.py --task synthetic --method smc_em
@@ -74,7 +63,7 @@ python main.py --task synthetic --method smc_em
   </section>
 
   <section>
-    <h3>📊 Performance</h3>
+    <h3>Performance</h3>
     <ul>
       <li>🚀 Faster convergence in EM steps</li>
       <li>📈 Scalable inference for higher-dimensional systems</li>
@@ -83,7 +72,7 @@ python main.py --task synthetic --method smc_em
   </section>
 
   <section>
-    <h3>📈 Applications</h3>
+    <h3>Applications</h3>
     <ul>
       <li>Neural decoding from calcium imaging data</li>
       <li>Behavioral time-series modeling</li>
@@ -93,14 +82,14 @@ python main.py --task synthetic --method smc_em
   </section>
 
   <section>
-    <h3>📚 Reference</h3>
+    <h3>Reference</h3>
     <p>
       If you use this code in your research, please consider citing the original <strong>SSM-DNN</strong> project and acknowledging the enhancements made here.
     </p>
   </section>
 
   <section>
-    <h3>🙌 Acknowledgements</h3>
+    <h3>Acknowledgements</h3>
     <p>
       This project builds on the foundations of <strong>SSM-DNN</strong>, with thanks to the <strong>JAX</strong> and <strong>BlackJAX</strong> communities for creating tools that make high-performance Bayesian modeling accessible.
     </p>
