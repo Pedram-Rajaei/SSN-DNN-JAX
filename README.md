@@ -1,9 +1,9 @@
 # SSN-DNN-JAX
 ## Introduction
 
-This report presents the implementation of a State-Space Model (SSM) and 1D Convolutional Neural Network (CNN) in JAX. The model combines Sequential Monte Carlo (SMC) sampling with deep learning for time-series analysis. The CNN is integrated to enhance particle resampling in the SMC algorithm, thereby improving state estimation accuracy.
+A fast, differentiable implementation of State-Space Models combined with Deep Neural Networks (SSM-DNN) using [JAX](https://github.com/jax-ml/jax) for accelerated and scalable computation.
 
-JAX is a framework developed by Google that enables high-performance machine learning computations. It provides functionalities for automatic differentiation and just-in-time (JIT) compilation, making it ideal for numerical simulations such as SMC filtering and deep learning applications. For more information about SSM-DNN please see [this page](https://github.com/Pedram-Rajaei/SSM-DNN).
+This repository extends the original [SSM-DNN](https://github.com/Pedram-Rajaei/SSM-DNN) implementation by leveraging JAX's high-performance automatic differentiation and parallelization capabilities. The resulting framework supports efficient training and inference for high-dimensional, temporally structured data.
 
 ## Methodology
 
