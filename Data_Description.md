@@ -9,4 +9,4 @@
     Each participant completed 360 trials, structured into 18 blocks of 20 trials each. Both reaction times (RTs) and accuracy were recorded for each trial. While average RTs across block types ("Death + Me" vs. "Life + Me") did not reveal significant differences between the High SI and Low SI groups, dynamic RT patterns across trials exhibited rhythmic modulations temporally aligned with block transitions. These rhythmic patterns were particularly pronounced in participants with Low SI scores, suggesting that temporal structure in RT trajectories may reflect underlying cognitive regulation processes differentially expressed across SI levels.
     In this study, we use RT data to explore how active suicidal ideation is encoded in temporal patterns of implicit task performance.
   </p>
-<img src="Pictures/AIT_Task.png" alt="AIT_Task.png" height="420" width="820">
+<img src="Images/AIT_Task.png" alt="AIT_Task.png" height="420" width="820">
