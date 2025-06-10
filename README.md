@@ -68,10 +68,10 @@ pip install -r requirements.txt
     <li><a href="Neural_Network_for_Classification_Task.py">Neural Network for Classification Task</a>: Demonstrates how to implement and train a neural network for EEG data classification and visualize its performance.
     </li>
     <li>
-        <a href="LatentStateInference.py">Latent State Inference</a>: Showcases the particle filter and EM algorithm in action.
+        <a href="Latent_State_Inference.PY">Latent State Inference</a>: Showcases the particle filter and EM algorithm in action.
     </li>
     <li>
-        <a href="PerformanceMetrics.py">Performance Metrics</a>: Evaluates model performance using accuracy, ROC curves, and AUC.
+        <a href="PerformanceMetrics.py">Evaluate_Metric</a>: Evaluates model performance using accuracy, ROC curves, and AUC.
     </li>
 </ul>
 </article>
