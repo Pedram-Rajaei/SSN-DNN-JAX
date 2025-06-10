@@ -1,4 +1,4 @@
-# Contributing to SSM-DNN
+# Contributing to SSM-DNN-JAX
 
 Thank you for considering contributing to SSM-DNN-JAX! We welcome contributions from everyone, whether you're fixing a bug, adding a new feature, or improving documentation. Please follow these guidelines to ensure a smooth contribution process.
 
