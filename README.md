@@ -75,7 +75,7 @@ pip install -r requirements.txt
     </li>
 </ul>
 </article>
-<p>The coresponding notebook can be found in [here](https://colab.research.google.com/drive/10Y5nb0CLcVjm37g2VrAfuHTNNgykV53w?usp=sharing).</p>
+The coresponding notebook can be found in [here](https://colab.research.google.com/drive/10Y5nb0CLcVjm37g2VrAfuHTNNgykV53w?usp=sharing).
 
 ## Conclusion
 
