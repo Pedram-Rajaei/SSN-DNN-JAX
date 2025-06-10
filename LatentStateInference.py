@@ -6,14 +6,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 
-# Assumed external utilities:
-# - compute_particle_spectrum(traj: jnp.ndarray, T_fixed: int) -> jnp.ndarray
-# - compute_spectra_per_particle(data: np.ndarray) -> (np.ndarray, np.ndarray)
-# - print_cnn_summary(variables: dict) -> None
-# - plot_conv_weights(variables: dict) -> None
-# - plot_intermediate_activations(variables: dict, apply_fn: callable, dummy_input: jnp.ndarray) -> None
-
-
 def systematic(key: jax.random.PRNGKey,
                weights: jnp.ndarray,
                num_particles: int) -> jnp.ndarray:
