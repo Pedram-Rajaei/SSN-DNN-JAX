@@ -156,7 +156,7 @@ def normal_pdf(x: float, mean: float, var: float) -> float:
     return (1.0 / jnp.sqrt(2*math.pi*var)) * jnp.exp(-0.5 * ((x - mean)**2) / var)
 
 
-def smc_update2(state: State,
+def smc_update(state: State,
                 particle: jnp.ndarray,
                 y: float,
                 key: jax.random.PRNGKey) -> (jnp.ndarray, float):
@@ -209,7 +209,7 @@ def smc_update2(state: State,
     return new_particle, weight
 
 
-def particle_filter_single_trial2(key: jax.random.PRNGKey,
+def particle_filter_single_trial(key: jax.random.PRNGKey,
                                   state: State,
                                   observations: jnp.ndarray,
                                   num_particles: int) -> jnp.ndarray:
@@ -252,7 +252,7 @@ def particle_filter_single_trial2(key: jax.random.PRNGKey,
     return history  # shape (T, num_particles, dim_state)
 
 
-def particle_filter_multi_trial2(key: jax.random.PRNGKey,
+def particle_filter_multi_trial(key: jax.random.PRNGKey,
                                  state: State,
                                  observations_all_trials: jnp.ndarray,
                                  num_particles: int) -> jnp.ndarray:
