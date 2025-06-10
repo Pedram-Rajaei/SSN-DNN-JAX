@@ -170,7 +170,7 @@ This implementation integrates SMC-based state estimation with deep learning (CN
 
 <h2>License</h2>
 <p>
-    This project is licensed under the MIT License. See the <a href="License">lincense</a> file for details.
+    This project is licensed under the MIT License. See the <a href="License">license</a> file for details.
 </p>
 
 ---
