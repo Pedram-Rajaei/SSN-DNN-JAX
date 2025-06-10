@@ -5,6 +5,111 @@ A fast, differentiable implementation of State-Space Models combined with Deep N
 
 This repository extends the original [SSM-DNN](https://github.com/Pedram-Rajaei/SSM-DNN) implementation by leveraging JAX's high-performance automatic differentiation and parallelization capabilities. The resulting framework supports efficient training and inference for high-dimensional, temporally structured data.
 
+---
+
+## What's New in SSM-DNN-JAX?
+
+- **JAX Backend**: Full rewrite of computational routines using JAX for GPU/TPU acceleration and vectorized operations.
+- **Speed & Efficiency**: Up to **10× speed improvement** in training and inference compared to the NumPy-based implementation.
+- **Clean Modular Design**: Reorganized code structure for easier experimentation and extension.
+- **Expanded Functionality**:
+  - EM + SMC particle-based inference
+  - GP-based interpolation
+  - Multivariate support
+
+---
+
+## Project Overview
+
+State-Space Models (SSMs) are powerful tools for modeling **latent dynamics in time series**. By combining SSMs with **deep neural network encoders and decoders**, this framework learns both **interpretable latent dynamics** and **rich observation mappings**. For more details on the modular structure of this approach, please refer [here](https://github.com/Pedram-Rajaei/SSM-DNN/tree/main/Docs).
+
+The JAX-based version maintains the original SSM-DNN architecture but improves:
+
+- Execution speed (via `jit` compilation and `vmap`)
+- Scalability to higher dimensions
+- Differentiability of all components
+
+---
+
+<article>
+  <header>
+    <h2>A JAX-based implementation of structured state-space models combined with deep neural networks for scalable and interpretable time-series modeling.</h2>
+  </header>
+
+  <section>
+    <h3>📁 Structure</h3>
+    <pre><code>
+SSM-DNN-JAX/
+├── data/                 # Synthetic and real datasets
+├── models/               # Core model definitions (SSM, RNN, CNN)
+├── inference/            # EM algorithm, SMC filtering
+├── utils/                # Helper functions
+├── main.py               # Main training and evaluation script
+└── README.md             # This file
+    </code></pre>
+  </section>
+
+  <section>
+    <h3>📦 Installation</h3>
+    <pre><code class="language-bash">
+git clone https://github.com/Pedram-Rajaei/SSM-DNN-JAX.git
+cd SSM-DNN-JAX
+pip install -r requirements.txt
+    </code></pre>
+
+    <h4>Dependencies</h4>
+    <ul>
+      <li><code>jax</code>, <code>jaxlib</code></li>
+      <li><code>flax</code>, <code>optax</code></li>
+      <li><code>matplotlib</code>, <code>numpy</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>🧪 Examples</h3>
+    <pre><code class="language-bash">
+# Run EM + SMC inference on synthetic dataset
+python main.py --task synthetic --method smc_em
+    </code></pre>
+  </section>
+
+  <section>
+    <h3>📊 Performance</h3>
+    <ul>
+      <li>🚀 Faster convergence in EM steps</li>
+      <li>📈 Scalable inference for higher-dimensional systems</li>
+      <li>⏱️ Support for real-time filtering and decoding</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>📈 Applications</h3>
+    <ul>
+      <li>Neural decoding from calcium imaging data</li>
+      <li>Behavioral time-series modeling</li>
+      <li>Interpretable latent dynamics in physiological data</li>
+      <li>Real-time inference for wearable sensor streams</li>
+    </ul>
+  </section>
+
+  <section>
+    <h3>📚 Reference</h3>
+    <p>
+      If you use this code in your research, please consider citing the original <strong>SSM-DNN</strong> project and acknowledging the enhancements made here.
+    </p>
+  </section>
+
+  <section>
+    <h3>🙌 Acknowledgements</h3>
+    <p>
+      This project builds on the foundations of <strong>SSM-DNN</strong>, with thanks to the <strong>JAX</strong> and <strong>BlackJAX</strong> communities for creating tools that make high-performance Bayesian modeling accessible.
+    </p>
+  </section>
+</article>
+
+
+
+
 ## Methodology
 
 ### 1. State-Space Model
